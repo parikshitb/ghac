@@ -1,4 +1,4 @@
-name: OIDC Test
+name: Terraform via OIDC
 
 on:
   workflow_dispatch:
@@ -8,15 +8,28 @@ permissions:
   contents: read
 
 jobs:
-  test-aws-oidc:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure AWS credentials via OIDC
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::931234858677:role/TerraformApplyRole
           aws-region: ap-northeast-1
 
-      - name: Who am I?
-        run: aws sts get-caller-identity
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      # OPTIONAL (safe to comment initially)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
